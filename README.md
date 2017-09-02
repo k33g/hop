@@ -3,7 +3,10 @@ Some ☁️ experiments
 
 ```
 CC_SSH
+CC_SSH_PRIVATE
 CC_TOKEN
 CC_SECRET
+CC_USER
+CC_USERMAIL
 DEPLOY_TOKEN
 ```

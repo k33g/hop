@@ -19,6 +19,13 @@ provision.shell(`
 `)
 
 provision.shell(`
+  #mkdir ~/.ssh/;
+  cat > ~/.ssh/id_rsa << EOF
+  ${process.env.CC_SSH_PRIVATE}
+  EOF  
+`)
+
+provision.shell(`
   git config --global user.name "${process.env.CC_USER}"
   git config --global user.email "${process.env.CC_USERMAIL}"
   git config --global credential.helper "cache --timeout=3600"
