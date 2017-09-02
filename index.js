@@ -23,12 +23,6 @@ provision.shell(`
   git config --global credential.helper "cache --timeout=3600"
 `)
 
-provision.shell(`
-  echo ===== public key =====
-  cat ~/.ssh/buster.pub
-  echo ======================
-`)
-
 let port = process.env.PORT || 8080;
 
 let deployService = new Service({})
@@ -38,18 +32,6 @@ let checkToken = token =>
   ? Success.of(token)
   : Failure.of("😡 Bad token")
 
-deployService.get({uri:`/api/ssh`, f: (request, response) => {
-
-  provision.shell(`
-    echo ===== public key =====
-    cat ~/.ssh/buster.pub
-    echo ======================
-  `).when({
-    Failure: err => response.sendText(err),
-    Success: out => response.sendText(out)
-  })
-  
-}})
 
 deployService.post({uri:`/api/deploy/gitbucket`, f: (request, response) => {
   let data = request.body

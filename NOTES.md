@@ -1,5 +1,11 @@
+ssh-keygen -f buster -t rsa -C "buster.bunny.69@gmail.com"
 
 
+
+ssh-keygen -f ~/.ssh/buster -t rsa -N '' -C "buster.bunny.69@gmail.com"
+ssh-keygen -f buster -t rsa -N '' -C "buster.bunny.69@gmail.com"
+
+mettre ça sur un bucket?
 
 ssh-keygen -t rsa -C "buster.bunny.69@gmail.com"
 
