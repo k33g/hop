@@ -31,6 +31,11 @@ chmod +x ~/.ssh/id_rsa.pub;
 chmod +x ~/.ssh/id_rsa;
 `)
 
+provision.shell(`
+git config --global user.name "${process.env.CC_USER}"
+git config --global user.email "${process.env.CC_USERMAIL}"
+git config --global credential.helper "cache --timeout=3600"
+`)
 
 /*
 provision.shell(`
@@ -38,11 +43,7 @@ provision.shell(`
   cp poc ~/.ssh/id_rsa
 `)
 
-provision.shell(`
-  git config --global user.name "${process.env.CC_USER}"
-  git config --global user.email "${process.env.CC_USERMAIL}"
-  git config --global credential.helper "cache --timeout=3600"
-`)
+
 */
 
 let port = process.env.PORT || 8080;
