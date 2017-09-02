@@ -16,8 +16,8 @@ provision.shell(`
 // you must copy it on Clever Cloud admin too
 
 provision.shell(`
-  cp ${process.env.CC_SSH_PRIVATE}  ~/.ssh/buster
-  cp ${process.env.CC_SSH_PUB} ~/.ssh/buster.pub
+  cp ${process.env.CC_SSH_PRIVATE}  ~/.ssh
+  cp ${process.env.CC_SSH_PUB} ~/.ssh
   chmod +x ~/.ssh/buster
   chmod +x ~/.ssh/buster.pub
 `).when({
