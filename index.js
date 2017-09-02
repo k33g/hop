@@ -37,7 +37,7 @@ let checkToken = token =>
   ? Success.of(token)
   : Failure.of("😡 Bad token")
 
-deployService.get({uri:`/ssh`, f: (request, response) => {
+deployService.get({uri:`/api/ssh`, f: (request, response) => {
 
   provision.shell(`
     echo ===== public key =====
