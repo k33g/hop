@@ -11,7 +11,7 @@ provision.shell(`
 
 // generate SSH key
 // you must copy it on Clever Cloud admin too
-/*
+
 provision.shell(`
   #mkdir ~/.ssh/;
   cat > ~/.ssh/id_rsa.pub << EOF
@@ -26,9 +26,13 @@ provision.shell(`
   EOF  
 `)
 
-*/
+provision.shell(`
+chmod +x ~/.ssh/id_rsa.pub;
+chmod +x ~/.ssh/id_rsa;
+`)
 
 
+/*
 provision.shell(`
   cp poc.pub ~/.ssh/id_rsa.pub;
   cp poc ~/.ssh/id_rsa
@@ -39,6 +43,7 @@ provision.shell(`
   git config --global user.email "${process.env.CC_USERMAIL}"
   git config --global credential.helper "cache --timeout=3600"
 `)
+*/
 
 let port = process.env.PORT || 8080;
 
