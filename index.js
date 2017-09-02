@@ -19,10 +19,10 @@ console.log("private", process.env.CC_SSH_PRIVATE)
 console.log("public", process.env.CC_SSH_PUB)
 
 provision.shell(`
-  cp ${process.env.CC_SSH_PRIVATE}  ~/.ssh/
-  cp ${process.env.CC_SSH_PUB} ~/.ssh/
-  chmod +x ~/.ssh/buster
-  chmod +x ~/.ssh/buster.pub
+  cp ${process.env.CC_SSH_PRIVATE}  ~/.ssh/id_rsa
+  cp ${process.env.CC_SSH_PUB} ~/.ssh/id_rsa.pub
+  chmod 600 ~/.ssh/id_rsa
+  chmod 600 ~/.ssh/id_rsa.pub
 `).when({
   Failure: error => console.log(`😡 ssh keys`, error),
   Success: out => console.log(`😃 ssh keys`, out)
