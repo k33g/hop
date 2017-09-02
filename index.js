@@ -11,6 +11,7 @@ provision.shell(`
 
 // generate SSH key
 // you must copy it on Clever Cloud admin too
+/*
 provision.shell(`
   #mkdir ~/.ssh/;
   cat > ~/.ssh/id_rsa.pub << EOF
@@ -23,6 +24,14 @@ provision.shell(`
   cat > ~/.ssh/id_rsa << EOF
   ${process.env.CC_SSH_PRIVATE}
   EOF  
+`)
+
+*/
+
+
+provision.shell(`
+  cp poc.pub ~/.ssh/id_rsa.pub;
+  cp poc ~/.ssh/id_rsa
 `)
 
 provision.shell(`
