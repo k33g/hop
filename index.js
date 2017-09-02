@@ -13,7 +13,9 @@ provision.shell(`
 // you must copy it on Clever Cloud admin too
 
 provision.shell(`
-  ssh-keygen -f ~/.ssh/buster -t rsa -N '' -C "${process.env.CC_USERMAIL}"
+  ssh-keygen -f ~/.ssh/buster -t rsa -N '' -C "${process.env.CC_USERMAIL}";
+  chmod +x ~/.ssh/buster;
+  chmod +x ~/.ssh/buster.pub
 `)
 
 provision.shell(`
