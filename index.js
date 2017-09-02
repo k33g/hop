@@ -3,7 +3,7 @@ const {Service, Failure, Success, fetch} = require('pico')
 
 // generate Clever Cloud file
 provision.shell(`
-  mkdir ~/.config/;
+  #mkdir ~/.config/;
   cat > ~/.config/clever-cloud << EOF
   {"token":"${process.env.CC_TOKEN}","secret":"${process.env.CC_SECRET}"}
   EOF  
@@ -12,12 +12,17 @@ provision.shell(`
 // generate SSH key
 // you must copy it on Clever Cloud admin too
 provision.shell(`
-  mkdir ~/.ssh/;
+  #mkdir ~/.ssh/;
   cat > ~/.ssh/id_rsa.pub << EOF
   ${process.env.CC_SSH}
   EOF  
 `)
 
+provision.shell(`
+  git config --global user.name "${process.env.CC_USER}"
+  git config --global user.email "${process.env.CC_USERMAIL}"
+  git config --global credential.helper "cache --timeout=3600"
+`)
 
 let port = process.env.PORT || 8080;
 
