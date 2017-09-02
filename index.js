@@ -13,37 +13,24 @@ provision.shell(`
 // you must copy it on Clever Cloud admin too
 
 provision.shell(`
-  #mkdir ~/.ssh/;
-  cat > ~/.ssh/id_rsa.pub << EOF
-  ${process.env.CC_SSH}
-  EOF  
+  ssh-keygen -f ~/.ssh/id_rsa -t rsa -N '' -C "${process.env.CC_USERMAIL}"
 `)
 
 provision.shell(`
-  #mkdir ~/.ssh/;
-  cat > ~/.ssh/id_rsa << EOF
-  ${process.env.CC_SSH_PRIVATE}
-  EOF  
+  git config --global user.name "${process.env.CC_USER}"
+  git config --global user.email "${process.env.CC_USERMAIL}"
+  git config --global credential.helper "cache --timeout=3600"
 `)
 
 provision.shell(`
-chmod +x ~/.ssh/id_rsa.pub;
-chmod +x ~/.ssh/id_rsa;
-`)
-
-provision.shell(`
-git config --global user.name "${process.env.CC_USER}"
-git config --global user.email "${process.env.CC_USERMAIL}"
-git config --global credential.helper "cache --timeout=3600"
+  echo ===== public key =====
+  cat ~/.ssh/id_rsa.pub
+  echo ======================
 `)
 
 /*
-provision.shell(`
-  cp poc.pub ~/.ssh/id_rsa.pub;
-  cp poc ~/.ssh/id_rsa
-`)
-
-
+ssh-keygen -t rsa -C "your_email@example.com"
+ssh-keygen -f id_rsa -t rsa -N '' -C "buster.bunny.69@gmail.com"
 */
 
 let port = process.env.PORT || 8080;
@@ -54,6 +41,19 @@ let checkToken = token =>
   token == process.env.DEPLOY_TOKEN
   ? Success.of(token)
   : Failure.of("😡 Bad token")
+
+deployService.get({uri:`/ssh`, f: (request, response) => {
+
+  provision.shell(`
+    echo ===== public key =====
+    cat ~/.ssh/id_rsa.pub
+    echo ======================
+  `).when({
+    Failure: err => response.sendText(err),
+    Success: out => response.sendText(out)
+  })
+  
+}})
 
 deployService.post({uri:`/api/deploy/gitbucket`, f: (request, response) => {
   let data = request.body

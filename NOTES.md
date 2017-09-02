@@ -1,4 +1,19 @@
------BEGIN RSA PRIVATE KEY-----
+
+
+
+ssh-keygen -t rsa -C "buster.bunny.69@gmail.com"
+
+ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDI8k0qFAnCKrFNYLh/+nHZWkGjkvhrjKJlDXFJ9KPvDVfjHGEz52a9kyt8zGtNLiWuyxmofdGhHtePAnMifmLB2t/mSgqE2EOSogNxwDbbIzqxE9f27EoID5wagPgEGDZXu8mbB2JmP3pXEQ3apdfqTdmbo3A9gQdJhnK2JCtUXdb+88HJ8HaAbgfto0rnVZPkJFDpAdXw2sea3ElFm0J13wpdpsGC7nu4s1NKruO+YBDmMJesyoaHauT1po1O+y8Am0ECTbZApK1G8n83SczdLS6jQ3+ARffB5SGwNN1+e+kB8sSLNIceTNiHTQafvCSlHYcw4kFamXqcrzPyjM6P buster.bunny.69@gmail.com
+
+CC_SECRET=2c1ba959c6974a20be992b08e2d43077
+CC_TOKEN=2c9bcb769cae447bad6c7056ae705550
+DEPLOY_TOKEN=bobmorane
+CC_SSH=ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDI8k0qFAnCKrFNYLh/+nHZWkGjkvhrjKJlDXFJ9KPvDVfjHGEz52a9kyt8zGtNLiWuyxmofdGhHtePAnMifmLB2t/mSgqE2EOSogNxwDbbIzqxE9f27EoID5wagPgEGDZXu8mbB2JmP3pXEQ3apdfqTdmbo3A9gQdJhnK2JCtUXdb+88HJ8HaAbgfto0rnVZPkJFDpAdXw2sea3ElFm0J13wpdpsGC7nu4s1NKruO+YBDmMJesyoaHauT1po1O+y8Am0ECTbZApK1G8n83SczdLS6jQ3+ARffB5SGwNN1+e+kB8sSLNIceTNiHTQafvCSlHYcw4kFamXqcrzPyjM6P buster.bunny.69@gmail.com
+
+CC_USER=busterbunny69
+CC_USERMAIL=buster.bunny.69@gmail.com
+
+CC_SSH_PRIVATE=-----BEGIN RSA PRIVATE KEY-----
 MIIEpQIBAAKCAQEAyPJNKhQJwiqxTWC4f/px2VpBo5L4a4yiZQ1xSfSj7w1X4xxh
 M+dmvZMrfMxrTS4lrssZqH3RoR7XjwJzIn5iwdrf5koKhNhDkqIDccA22yM6sRPX
 9uxKCA+cGoD4BBg2V7vJmwdiZj96VxEN2qXX6k3Zm6NwPYEHSYZytiQrVF3W/vPB
@@ -25,3 +40,13 @@ PIeEJO0CgYEAxuCn/tlUL1xqx9lCub/+sSnbHAHXpSoqEG8n8ctAz5qLz5tYVAPl
 pDecFRs3sTW/AM3MGz5BAA4kn/neJ/d7+HLbCXN/mBP1aFM+ce5SiYszn13HgsTM
 PT8mH5j0Kt8uM4eN1s0pl7yMVTKRe6+3xdEID6mmgSXTc64XndSrEjE=
 -----END RSA PRIVATE KEY-----
+
+
+
+curl -H "Content-Type: application/json" -H "Token: bobmorane" -X POST -d '{"organization":"wey-yu", "applicationName":"gbhop", "domainName":"gbhop"}' http://hop.cleverapps.io/api/deploy/gitbucket
+
+
+
+  let organization = data.organization
+  let applicationName = data.applicationName
+  let domainName = data.domainName
