@@ -1,5 +1,9 @@
 ssh-keygen -f buster -t rsa -C "buster.bunny.69@gmail.com"
 
+CC_FS_BUCKET=/storage:bucket-d656365d-a85b-4aa8-9407-4b00b9d85927-fsbucket.services.clever-cloud.com
+
+CC_SSH_PUB=/app/storage/buster.pub
+CSS_SSH_PRIVATE=/app/storage/buster.pub
 
 
 ssh-keygen -f ~/.ssh/buster -t rsa -N '' -C "buster.bunny.69@gmail.com"
