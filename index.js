@@ -13,7 +13,7 @@ provision.shell(`
 // you must copy it on Clever Cloud admin too
 
 provision.shell(`
-  ssh-keygen -f ~/.ssh/id_rsa -t rsa -N '' -C "${process.env.CC_USERMAIL}"
+  ssh-keygen -f ~/.ssh/buster -t rsa -N '' -C "${process.env.CC_USERMAIL}"
 `)
 
 provision.shell(`
@@ -24,7 +24,7 @@ provision.shell(`
 
 provision.shell(`
   echo ===== public key =====
-  cat ~/.ssh/id_rsa.pub
+  cat ~/.ssh/buster.pub
   echo ======================
 `)
 
@@ -41,7 +41,7 @@ deployService.get({uri:`/ssh`, f: (request, response) => {
 
   provision.shell(`
     echo ===== public key =====
-    cat ~/.ssh/id_rsa.pub
+    cat ~/.ssh/buster.pub
     echo ======================
   `).when({
     Failure: err => response.sendText(err),
