@@ -8,21 +8,24 @@ provision.shell(`
   {"token":"${process.env.CC_TOKEN}","secret":"${process.env.CC_SECRET}"}
   EOF  
 `).when({
-  Failure: error => console.log(`😡`, error),
-  Success: out => console.log(`😃`, out)
+  Failure: error => console.log(`😡 clever-cloud config`, error),
+  Success: out => console.log(`😃 clever-cloud config`, out)
 })
 
 // generate SSH key
 // you must copy it on Clever Cloud admin too
 
+console.log("private", process.env.CC_SSH_PRIVATE)
+console.log("public", process.env.CC_SSH_PUB)
+
 provision.shell(`
-  cp ${process.env.CC_SSH_PRIVATE}  ~/.ssh
-  cp ${process.env.CC_SSH_PUB} ~/.ssh
+  cp ${process.env.CC_SSH_PRIVATE}  ~/.ssh/
+  cp ${process.env.CC_SSH_PUB} ~/.ssh/
   chmod +x ~/.ssh/buster
   chmod +x ~/.ssh/buster.pub
 `).when({
-  Failure: error => console.log(`😡`, error),
-  Success: out => console.log(`😃`, out)
+  Failure: error => console.log(`😡 ssh keys`, error),
+  Success: out => console.log(`😃 ssh keys`, out)
 })
 
 provision.shell(`
@@ -30,8 +33,8 @@ provision.shell(`
   git config --global user.email "${process.env.CC_USERMAIL}"
   git config --global credential.helper "cache --timeout=3600"
 `).when({
-  Failure: error => console.log(`😡`, error),
-  Success: out => console.log(`😃`, out)
+  Failure: error => console.log(`😡 git config`, error),
+  Success: out => console.log(`😃 git config`, out)
 })
 
 let port = process.env.PORT || 8080;
