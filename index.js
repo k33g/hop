@@ -28,11 +28,6 @@ provision.shell(`
   echo ======================
 `)
 
-/*
-ssh-keygen -t rsa -C "your_email@example.com"
-ssh-keygen -f id_rsa -t rsa -N '' -C "buster.bunny.69@gmail.com"
-*/
-
 let port = process.env.PORT || 8080;
 
 let deployService = new Service({})
