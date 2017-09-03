@@ -1,6 +1,13 @@
 const {applications, addons, AddOn, Application, provision} = require('casti')
 const {Service, Failure, Success, fetch} = require('pico')
 
+/**
+ * TODO
+ * - delete application
+ * - delete addon
+ * - Web UI
+ */
+
 // generate Clever Cloud file
 provision.shell(`
   #mkdir ~/.config/;
@@ -76,19 +83,22 @@ deployService.post({uri:`/api/deploy/shell`, f: (request, response) => {
  */
 
 /*  
-  curl -H "Content-Type: application/json" -H "Token: bobmorane" -X POST -d '{"organization":"wey-yu", "applicationName":"myapp", "domainName":"my_app", "applicationType":"node", "repository":"https://github.com/k33g/pico-hello-service.git"}' http://hop.cleverapps.io/api/deploy/repository
-  curl -H "Content-Type: application/json" -H "Token: bobmorane" -X POST -d '{"organization":"wey-yu", "applicationName":"myapp", "domainName":"my_app", "applicationType":"node", "repository":"https://github.com/k33g/pico-hello-service.git"}' http://localhost:8080//api/deploy/repository
+  curl -H "Content-Type: application/json" -H "Token: bobmorane" -X POST -d '{"organization":"wey-yu", "applicationName":"myapp2", "domainName":"my_app_2", "applicationType":"node", "repository":"https://github.com/k33g/pico-hello-service.git", "branch":"wip-yo"}' http://hop.cleverapps.io/api/deploy/repository
+  curl -H "Content-Type: application/json" -H "Token: bobmorane" -X POST -d '{"organization":"wey-yu", "applicationName":"myapp2", "domainName":"my_app_2", "applicationType":"node", "repository":"https://github.com/k33g/pico-hello-service.git", "branch":"wip-yo"}' http://localhost:8080/api/deploy/repository
 */
 
 deployService.post({uri:`/api/deploy/repository`, f: (request, response) => {
   let data = request.body
   let token = request.headers['token']
 
+  // TODO: check all data
+
   let organization = data.organization
   let applicationName = data.applicationName
   let domainName = data.domainName
   let applicationType = data.applicationType // eg: node
   let repository = data.repository
+  let branch = data.branch
 
   console.log("👋 ===== repository =====")
   console.log("organization", organization)
@@ -96,6 +106,8 @@ deployService.post({uri:`/api/deploy/repository`, f: (request, response) => {
   console.log("domainName", domainName)
   console.log("applicationType", applicationType)
   console.log("repository", repository)
+  console.log("branch", branch)
+  
 
   checkToken(token).when({
     Failure: error => response.sendJson({message: "😡", error: error}),
@@ -123,6 +135,23 @@ deployService.post({uri:`/api/deploy/repository`, f: (request, response) => {
         `${process.cwd()}/applications/${applicationName}`
       )
 
+      
+      if(branch=="master") {
+        
+      } else {
+        provision.shell(`
+          cd ${process.cwd()}/applications/${applicationName}
+          git checkout ${branch}
+        `).when({
+          Failure: error => {
+            console.log(`😡 when creating git checkout ${branch}`, error)
+            response.sendJson({message: "😡", error: error, when:`git checkout ${branch}`})
+          },
+          Success: () => console.log(`😀 git checkout ${branch}`)
+        })
+      }
+      
+
       // === create the application on Clever ☁️ ===
       rawApp.create({directoryExists:true}).when({ // directoryExists equals true because created with previous git clone command
         Failure: error => {
@@ -144,14 +173,26 @@ deployService.post({uri:`/api/deploy/repository`, f: (request, response) => {
             },
             Success: () => console.log("😀 initializeGitRepository")
           })
-          rawApp.pushToClever().when({
-            Failure: error => {
-              console.log(`😡 when creating pushToClever`, error)
-              response.sendJson({message: "😡", error: error, when:"pushToClever"})
-            },
-            Success: () => console.log("😀 pushToClever")
-          })
 
+          if(branch=="master") {
+            rawApp.pushToClever().when({
+              Failure: error => {
+                console.log(`😡 when pushToClever`, error)
+                response.sendJson({message: "😡", error: error, when:"pushToClever"})
+              },
+              Success: () => console.log("😀 pushToClever")
+            })
+          } else {
+
+            rawApp.pushBranchToClever(branch).when({
+              Failure: error => {
+                console.log(`😡 when pushBranchToClever`, error)
+                response.sendJson({message: "😡", error: error, when:`pushBranchToClever ${branch}`})
+              },
+              Success: () => console.log(`😀 pushBranchToClever ${branch}`)
+            })
+
+          }
           response.sendJson({application:rawApp})
         }      
       })    
