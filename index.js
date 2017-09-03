@@ -45,6 +45,12 @@ let checkToken = token =>
   ? Success.of(token)
   : Failure.of("😡 Bad token")
 
+/* === SHELL === */
+/*  
+  curl -H "Content-Type: application/json" -H "Token: hophophop" -X POST -d \
+  '{"shell": "clever create -t node mykillerapp -o wey-yu -a mykillerapp"}' \
+  http://hop.cleverapps.io/api/deploy/shell
+*/
 deployService.post({uri:`/api/deploy/shell`, f: (request, response) => {
   let data = request.body
   let token = request.headers['token']
@@ -60,9 +66,117 @@ deployService.post({uri:`/api/deploy/shell`, f: (request, response) => {
   })
 }})
 
+/* === FROM GIT CLONE === */
+
+/** TODO
+ * - add environment variables
+ * - try with private repository
+ */
+
+/*  
+  curl -H "Content-Type: application/json" -H "Token: bobmorane" -X POST -d \
+  '{\
+    "organization":"wey-yu", \
+    "applicationName":"myapp", \
+    "domainName":"myapp", \
+    "applicationType":"node", \
+    "repository":"https://github.com/k33g/pico-hello-service.git" \
+  }' \
+  http://hop.cleverapps.io/api/deploy/repository
+*/
+
+deployService.post({uri:`/api/deploy/repository`, f: (request, response) => {
+  let data = request.body
+  let token = request.headers['token']
+
+  let organization = data.organization
+  let applicationName = data.applicationName
+  let domainName = data.domainName
+  let applicationType = data.applicationType // eg: node
+  let repository = data.repository
+
+  checkToken(token).when({
+    Failure: err => response.sendJson({message: "😡", error: err}),
+    Success: () => {
+      /*=== deploy an application ===*/
+
+      // === define the application ===
+      let rawApp = Application.of({
+        type: applicationType,
+        localPath: `${process.cwd()}/applications`, 
+        name: `${applicationName}`,
+        displayName: `${applicationName}`,
+        domain: `${domainName}`,
+        organization: organization,
+        region: applications.Regions.PARIS,
+        scale: applications.Scales.MEDIUM,
+        addonsNames: [result.addon.name],
+        environmentVariables: ["PORT=8080"] // 👈 TODO      
+      })
+      // === end of define the application ===
+
+
+      provision.gitClone(
+        `${repository}`, 
+        `${process.cwd()}/applications/${applicationName}`
+      )
+
+      // === create the application on Clever ☁️ ===
+      rawApp.create({directoryExists:true}).when({ // directoryExists equals true because created with previous git clone command
+        Failure: error => {
+          console.log(`😡 Huston? We had a problem when creating application`, error)
+          response.sendJson({message: "😡", error: err})
+        },
+        Success: services => { // {applications, addons}
+              
+          /*
+            rawApp.addEnvironmentVariable(
+              {name:`MY_VARIABLE`, value: "something"}
+            )
+          */
+
+          rawApp.initializeGitRepository()
+          rawApp.pushToClever()
+
+          response.sendJson({application:rawApp})
+        }      
+      })    
+      // === end of create the application on Clever ☁️ ===
+
+
+    } // end of Success token
+  }) // end of checking token
+}}) // end od POST
+
+/* === CASTI SCRIPT === */
+/**
+ * load the script from a repository ?
+ * load the script from the fs bucket
+ */
+deployService.post({uri:`/api/deploy/casti`, f: (request, response) => {
+  let data = request.body
+  let token = request.headers['token']
+
+  let organization = data.organization
+  let applicationName = data.applicationName
+  let domainName = data.domainName
+
+  checkToken(token).when({
+    Failure: err => response.sendJson({message: "😡", error: err}),
+    Success: () => {
+      /*=== deploy from casti script ===*/
+
+      // 🚧
+
+    } // end of Success token
+  }) // end of checking token
+}}) // end od POST
+
 /* === GITBUCKET === */
 /* SAMPLE
-curl -H "Content-Type: application/json" -H "Token: bobmorane" -X POST -d '{"organization":"wey-yu", "applicationName":"gbhop", "domainName":"gbhop"}' http://hop.cleverapps.io/api/deploy/gitbucket
+  curl -H "Content-Type: application/json" -H "Token: bobmorane" -X POST -d \
+  '{"organization":"wey-yu", "applicationName":"gbhop", "domainName":"gbhop"}' \
+  http://hop.cleverapps.io/api/deploy/gitbucket
 */
 deployService.post({uri:`/api/deploy/gitbucket`, f: (request, response) => {
   let data = request.body
@@ -140,7 +254,9 @@ deployService.post({uri:`/api/deploy/gitbucket`, f: (request, response) => {
 
 /* === JENKINS === */
 /* SAMPLE
-curl -H "Content-Type: application/json" -H "Token: bobmorane" -X POST -d '{"organization":"wey-yu", "applicationName":"jenkinshop", "domainName":"jenkinshop"}' http://hop.cleverapps.io/api/deploy/jenkins
+  curl -H "Content-Type: application/json" -H "Token: bobmorane" -X POST -d \
+  '{"organization":"wey-yu", "applicationName":"jenkinshop", "domainName":"jenkinshop"}' \
+  http://hop.cleverapps.io/api/deploy/jenkins
 */
 deployService.post({uri:`/api/deploy/jenkins`, f: (request, response) => {
   let data = request.body
