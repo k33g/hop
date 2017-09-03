@@ -70,18 +70,14 @@ deployService.post({uri:`/api/deploy/shell`, f: (request, response) => {
 
 /** TODO
  * - add environment variables
+ * - change the size of the VM
  * - try with private repository
+ * - fix pico line 161 when error ...
  */
 
 /*  
   curl -H "Content-Type: application/json" -H "Token: bobmorane" -X POST -d \
-  '{\
-    "organization":"wey-yu", \
-    "applicationName":"myapp", \
-    "domainName":"myapp", \
-    "applicationType":"node", \
-    "repository":"https://github.com/k33g/pico-hello-service.git" \
-  }' \
+  '{"organization":"wey-yu", "applicationName":"myapp", "domainName":"myapp", "applicationType":"node", "repository":"https://github.com/k33g/pico-hello-service.git"}' \
   http://hop.cleverapps.io/api/deploy/repository
 */
 
@@ -109,8 +105,8 @@ deployService.post({uri:`/api/deploy/repository`, f: (request, response) => {
         domain: `${domainName}`,
         organization: organization,
         region: applications.Regions.PARIS,
-        scale: applications.Scales.MEDIUM,
-        addonsNames: [result.addon.name],
+        scale: applications.Scales.MEDIUM, // 👈 TODO 
+        addonsNames: [],
         environmentVariables: ["PORT=8080"] // 👈 TODO      
       })
       // === end of define the application ===
@@ -426,7 +422,7 @@ deployService.get({uri:`/`, f: (request, response) => {
               HOP will be soon alive 🚀
             </h1>
             <h2 class="subtitle">
-              👷 work in progress with 💕 & 🤖
+              👷 work in progress with 💕 & 🤖 by @k33g_org
             </h2>
             <h3 class="littlesubtitle">
               <a class="nolink" href="">Deploy GitBucket</a><br>
