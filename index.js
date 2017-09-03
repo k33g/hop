@@ -45,6 +45,21 @@ let checkToken = token =>
   ? Success.of(token)
   : Failure.of("😡 Bad token")
 
+deployService.post({uri:`/api/deploy/shell`, f: (request, response) => {
+  let data = request.body
+  let token = request.headers['token']
+
+  checkToken(token).when({
+    Failure: err => response.sendJson({message: "😡", error: err}),
+    Success: () => {
+      shell(data.shell).when({
+        Failure: err => response.sendJson({message: "😡", error: err}),
+        Success: res => response.sendJson({message: "😃", result: res})
+      })
+    }
+  })
+}})
+
 /* === GITBUCKET === */
 /* SAMPLE
 curl -H "Content-Type: application/json" -H "Token: bobmorane" -X POST -d '{"organization":"wey-yu", "applicationName":"gbhop", "domainName":"gbhop"}' http://hop.cleverapps.io/api/deploy/gitbucket

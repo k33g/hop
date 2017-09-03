@@ -27,13 +27,20 @@ DEPLOY_TOKEN=...
 PORT=8080
 ```
 
+## Create a nodejs application with shell
+
+```bash
+curl -H "Content-Type: application/json" -H "Token: hophophop" -X POST -d \
+'{"shell": "clever create -t node mykillerapp -o wey-yu -a mykillerapp"}' \
+http://hop.cleverapps.io/api/deploy/shell
+```
+
 ## Deploy a gitbucket instance
 
 ```
 curl -H "Content-Type: application/json" -H "Token: hophophop" -X POST -d \
 '{"organization":"wey-yu", "applicationName":"gbhop", "domainName":"gbhop"}' \
 http://hop.cleverapps.io/api/deploy/gitbucket
-
 ```
 
 ## Deploy a jenkins instance
