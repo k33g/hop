@@ -76,9 +76,7 @@ deployService.post({uri:`/api/deploy/shell`, f: (request, response) => {
  */
 
 /*  
-  curl -H "Content-Type: application/json" -H "Token: bobmorane" -X POST -d \
-  '{"organization":"wey-yu", "applicationName":"myapp", "domainName":"myapp", "applicationType":"node", "repository":"https://github.com/k33g/pico-hello-service.git"}' \
-  http://hop.cleverapps.io/api/deploy/repository
+  curl -H "Content-Type: application/json" -H "Token: bobmorane" -X POST -d '{"organization":"wey-yu", "applicationName":"myapp", "domainName":"myapp", "applicationType":"node", "repository":"https://github.com/k33g/pico-hello-service.git"}' http://hop.cleverapps.io/api/deploy/repository
 */
 
 deployService.post({uri:`/api/deploy/repository`, f: (request, response) => {
@@ -90,6 +88,13 @@ deployService.post({uri:`/api/deploy/repository`, f: (request, response) => {
   let domainName = data.domainName
   let applicationType = data.applicationType // eg: node
   let repository = data.repository
+
+  console.log("👋 ===== repository =====")
+  console.log("organization", organization)
+  console.log("applicationName", applicationName)
+  console.log("domainName", domainName)
+  console.log("applicationType", applicationType)
+  console.log("repository", repository)
 
   checkToken(token).when({
     Failure: err => response.sendJson({message: "😡", error: err}),
@@ -106,11 +111,10 @@ deployService.post({uri:`/api/deploy/repository`, f: (request, response) => {
         organization: organization,
         region: applications.Regions.PARIS,
         scale: applications.Scales.MEDIUM, // 👈 TODO 
-        addonsNames: [],
+        addonsNames: [""],
         environmentVariables: ["PORT=8080"] // 👈 TODO      
       })
       // === end of define the application ===
-
 
       provision.gitClone(
         `${repository}`, 
