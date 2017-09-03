@@ -427,6 +427,7 @@ deployService.get({uri:`/`, f: (request, response) => {
             <h3 class="littlesubtitle">
               <a class="nolink" href="">Deploy GitBucket</a><br>
               <a class="nolink" href="">Deploy Jenkins</a><br>
+              <a class="nolink" href="">Deploy what you want from Jenkinsfile</a><br>
               <a class="nolink" href="">Deploy ...</a>
             </h3>
           </div>

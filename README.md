@@ -35,6 +35,14 @@ curl -H "Content-Type: application/json" -H "Token: hophophop" -X POST -d \
 http://hop.cleverapps.io/api/deploy/shell
 ```
 
+## Deploy from a git repository
+
+```bash
+curl -H "Content-Type: application/json" -H "Token: bobmorane" -X POST -d \
+'{"organization":"wey-yu", "applicationName":"myapp", "domainName":"myapp", "applicationType":"node", "repository":"https://github.com/k33g/pico-hello-service.git"}' \
+http://hop.cleverapps.io/api/deploy/repository
+```
+
 ## Deploy a gitbucket instance
 
 ```
