@@ -1,5 +1,16 @@
 const {applications, addons, AddOn, Application, provision} = require('casti')
-const {Service, Failure, Success, fetch} = require('pico')
+const {Egg} = require('pullet')
+
+const express = require("express")
+const bodyParser = require("body-parser")
+
+class Result extends Egg {}
+class Failure extends Egg {}
+class Success extends Egg {}
+
+let app = express();
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({extended: false}))
 
 /**
  * TODO
@@ -45,8 +56,6 @@ provision.shell(`
 
 let port = process.env.PORT || 8080;
 
-let deployService = new Service({})
-
 let checkToken = token => 
   token == process.env.DEPLOY_TOKEN
   ? Success.of(token)
@@ -58,20 +67,23 @@ let checkToken = token =>
   '{"shell": "clever create -t node mykillerapp -o wey-yu -a mykillerapp"}' \
   http://hop.cleverapps.io/api/deploy/shell
 */
-deployService.post({uri:`/api/deploy/shell`, f: (request, response) => {
+
+app.post(`/api/deploy/shell`, (request, response) => {
   let data = request.body
   let token = request.headers['token']
 
   checkToken(token).when({
-    Failure: err => response.sendJson({message: "😡", error: err}),
+    Failure: err => response.send({message: "😡", error: err}),
     Success: () => {
       shell(data.shell).when({
-        Failure: err => response.sendJson({message: "😡", error: err}),
-        Success: res => response.sendJson({message: "😃", result: res})
+        Failure: err => response.send({message: "😡", error: err}),
+        Success: res => response.send({message: "😃", result: res})
       })
     }
   })
-}})
+
+})
+
 
 /* === FROM GIT CLONE === */
 
@@ -87,7 +99,14 @@ deployService.post({uri:`/api/deploy/shell`, f: (request, response) => {
   curl -H "Content-Type: application/json" -H "Token: bobmorane" -X POST -d '{"organization":"wey-yu", "applicationName":"myapp2", "domainName":"my_app_2", "applicationType":"node", "repository":"https://github.com/k33g/pico-hello-service.git", "branch":"wip-yo"}' http://localhost:8080/api/deploy/repository
 */
 
-deployService.post({uri:`/api/deploy/repository`, f: (request, response) => {
+/**
+ * TODO:
+ * - remove directory before
+ */
+
+
+app.post(`/api/deploy/repository`, (request, response) => {
+
   let data = request.body
   let token = request.headers['token']
 
@@ -110,7 +129,7 @@ deployService.post({uri:`/api/deploy/repository`, f: (request, response) => {
   
 
   checkToken(token).when({
-    Failure: error => response.sendJson({message: "😡", error: error}),
+    Failure: error => response.send({message: "😡", error: error}),
     Success: () => {
       console.log("😀 token is ok")
       /*=== deploy an application ===*/
@@ -130,12 +149,28 @@ deployService.post({uri:`/api/deploy/repository`, f: (request, response) => {
       })
       // === end of define the application ===
 
+      // check application
+      /*
+      rawApp.getConfiguration().when({
+        Success: currentApplication => {
+          console.log("⚠️ aplication already exists", currentApplication)
+          // add this to casti
+        },
+        Failure: () => console.log("this is a new application"),
+      })
+      */
+      // remove application if exists
+      provision.shell(`
+        cd ${process.cwd()}/applications/${applicationName}
+        clever delete --yes
+      `)
+      provision.shell(`rm -rf ${process.cwd()}/applications/${applicationName}`)
+
       provision.gitClone(
         `${repository}`, 
         `${process.cwd()}/applications/${applicationName}`
       )
 
-      
       if(branch=="master") {
         
       } else {
@@ -145,7 +180,7 @@ deployService.post({uri:`/api/deploy/repository`, f: (request, response) => {
         `).when({
           Failure: error => {
             console.log(`😡 when creating git checkout ${branch}`, error)
-            response.sendJson({message: "😡", error: error, when:`git checkout ${branch}`})
+            response.send({message: "😡", error: error, when:`git checkout ${branch}`})
           },
           Success: () => console.log(`😀 git checkout ${branch}`)
         })
@@ -156,7 +191,7 @@ deployService.post({uri:`/api/deploy/repository`, f: (request, response) => {
       rawApp.create({directoryExists:true}).when({ // directoryExists equals true because created with previous git clone command
         Failure: error => {
           console.log(`😡 Huston? We had a problem when creating application`, error)
-          response.sendJson({message: "😡", error: error})
+          response.send({message: "😡", error: error})
         },
         Success: services => { // {applications, addons}
           console.log("👋 services", services)
@@ -169,7 +204,7 @@ deployService.post({uri:`/api/deploy/repository`, f: (request, response) => {
           rawApp.initializeGitRepository().when({
             Failure: error => {
               console.log(`😡 when creating initializeGitRepository`, error)
-              response.sendJson({message: "😡", error: error, when:"initializeGitRepository"})
+              response.send({message: "😡", error: error, when:"initializeGitRepository"})
             },
             Success: () => console.log("😀 initializeGitRepository")
           })
@@ -178,7 +213,7 @@ deployService.post({uri:`/api/deploy/repository`, f: (request, response) => {
             rawApp.pushToClever().when({
               Failure: error => {
                 console.log(`😡 when pushToClever`, error)
-                response.sendJson({message: "😡", error: error, when:"pushToClever"})
+                response.send({message: "😡", error: error, when:"pushToClever"})
               },
               Success: () => console.log("😀 pushToClever")
             })
@@ -187,13 +222,13 @@ deployService.post({uri:`/api/deploy/repository`, f: (request, response) => {
             rawApp.pushBranchToClever(branch).when({
               Failure: error => {
                 console.log(`😡 when pushBranchToClever`, error)
-                response.sendJson({message: "😡", error: error, when:`pushBranchToClever ${branch}`})
+                response.send({message: "😡", error: error, when:`pushBranchToClever ${branch}`})
               },
               Success: () => console.log(`😀 pushBranchToClever ${branch}`)
             })
 
           }
-          response.sendJson({application:rawApp})
+          response.send({application:rawApp})
         }      
       })    
       // === end of create the application on Clever ☁️ ===
@@ -201,14 +236,14 @@ deployService.post({uri:`/api/deploy/repository`, f: (request, response) => {
 
     } // end of Success token
   }) // end of checking token
-}}) // end od POST
+}) // end od POST
 
 /* === CASTI SCRIPT === */
 /**
  * load the script from a repository ?
  * load the script from the fs bucket
  */
-deployService.post({uri:`/api/deploy/casti`, f: (request, response) => {
+app.post(`/api/deploy/casti`, (request, response) => {
   let data = request.body
   let token = request.headers['token']
 
@@ -217,7 +252,7 @@ deployService.post({uri:`/api/deploy/casti`, f: (request, response) => {
   let domainName = data.domainName
 
   checkToken(token).when({
-    Failure: err => response.sendJson({message: "😡", error: err}),
+    Failure: err => response.send({message: "😡", error: err}),
     Success: () => {
       /*=== deploy from casti script ===*/
 
@@ -225,7 +260,7 @@ deployService.post({uri:`/api/deploy/casti`, f: (request, response) => {
 
     } // end of Success token
   }) // end of checking token
-}}) // end od POST
+}) // end od POST
 
 /* === GITBUCKET === */
 /* SAMPLE
@@ -233,7 +268,7 @@ deployService.post({uri:`/api/deploy/casti`, f: (request, response) => {
   '{"organization":"wey-yu", "applicationName":"gbhop", "domainName":"gbhop"}' \
   http://hop.cleverapps.io/api/deploy/gitbucket
 */
-deployService.post({uri:`/api/deploy/gitbucket`, f: (request, response) => {
+app.post(`/api/deploy/gitbucket`, (request, response) => {
   let data = request.body
   let token = request.headers['token']
 
@@ -242,7 +277,7 @@ deployService.post({uri:`/api/deploy/gitbucket`, f: (request, response) => {
   let domainName = data.domainName
 
   checkToken(token).when({
-    Failure: err => response.sendJson({message: "😡", error: err}),
+    Failure: err => response.send({message: "😡", error: err}),
     Success: () => {
       /*=== deploy gitbucket ===*/
 
@@ -305,7 +340,7 @@ deployService.post({uri:`/api/deploy/gitbucket`, f: (request, response) => {
 
     } // end of Success token
   }) // end of checking token
-}}) // end od POST
+}) // end od POST
 
 /* === JENKINS === */
 /* SAMPLE
@@ -313,7 +348,7 @@ deployService.post({uri:`/api/deploy/gitbucket`, f: (request, response) => {
   '{"organization":"wey-yu", "applicationName":"jenkinshop", "domainName":"jenkinshop"}' \
   http://hop.cleverapps.io/api/deploy/jenkins
 */
-deployService.post({uri:`/api/deploy/jenkins`, f: (request, response) => {
+app.post(`/api/deploy/jenkins`, (request, response) => {
   let data = request.body
   let token = request.headers['token']
 
@@ -322,7 +357,7 @@ deployService.post({uri:`/api/deploy/jenkins`, f: (request, response) => {
   let domainName = data.domainName
 
   checkToken(token).when({
-    Failure: err => response.sendJson({message: "😡", error: err}),
+    Failure: err => response.send({message: "😡", error: err}),
     Success: () => {
       /*=== deploy jenkins ===*/
       /*--- FSbucket definition ---*/
@@ -366,16 +401,16 @@ deployService.post({uri:`/api/deploy/jenkins`, f: (request, response) => {
           // deploy 
           jenkinsApplication.pushToClever()
           
-          response.sendJson({application:jenkinsApplication})
+          response.send({application:jenkinsApplication})
         }
       })      
 
     } // end of Success token
   }) // end of checking token
-}}) // end od POST
+}) // end od POST
 
 /* === HUBOT === */
-deployService.post({uri:`/api/deploy/hubot`, f: (request, response) => {
+app.post(`/api/deploy/hubot`, (request, response) => {
   let data = request.body
   let token = request.headers['token']
 
@@ -384,7 +419,7 @@ deployService.post({uri:`/api/deploy/hubot`, f: (request, response) => {
   let domainName = data.domainName
 
   checkToken(token).when({
-    Failure: err => response.sendJson({message: "😡", error: err}),
+    Failure: err => response.send({message: "😡", error: err}),
     Success: () => {
       /*=== deploy hubot ===*/
 
@@ -392,10 +427,10 @@ deployService.post({uri:`/api/deploy/hubot`, f: (request, response) => {
 
     } // end of Success token
   }) // end of checking token
-}}) // end od POST
+}) // end od POST
 
 /* === LETSCHAT === */
-deployService.post({uri:`/api/deploy/letschat`, f: (request, response) => {
+app.post(`/api/deploy/letschat`, (request, response) => {
   let data = request.body
   let token = request.headers['token']
 
@@ -404,7 +439,7 @@ deployService.post({uri:`/api/deploy/letschat`, f: (request, response) => {
   let domainName = data.domainName
 
   checkToken(token).when({
-    Failure: err => response.sendJson({message: "😡", error: err}),
+    Failure: err => response.send({message: "😡", error: err}),
     Success: () => {
       /*=== deploy letschat ===*/
 
@@ -412,12 +447,12 @@ deployService.post({uri:`/api/deploy/letschat`, f: (request, response) => {
 
     } // end of Success token
   }) // end of checking token
-}}) // end od POST
+}) // end od POST
 
 
 
-deployService.get({uri:`/`, f: (request, response) => {
-  response.sendHtml(`
+app.get(`/`, (request, response) => {
+  response.send(`
     <!doctype html>
     <html>
       <head>
@@ -494,16 +529,8 @@ deployService.get({uri:`/`, f: (request, response) => {
       </body>
     </html>
   `)
-}})
-
-deployService.start({port: port}, res => {
-  res.when({
-    Failure: error => console.log("😡 Houston? We have a problem!", error),
-    Success: port => {
-      console.log(`🌍 hop deploy service is listening on ${port}`)
-      provision.shell(`
-        clever --version
-      `)
-    }
-  })
 })
+
+app.listen(port)
+console.log(`🌍 hop deploy service is listening on ${port}`)
+provision.shell(`clever --version`)

@@ -4,7 +4,7 @@
   "description": "Some ☁️ experiments",
   "main": "index.js",
   "scripts": {
-    "preinstall": "npm i -g clever-tools",
+    "preinstall": "npm i -g clever-tools",    
     "start": "node index.js"
   },
   "repository": {
@@ -20,7 +20,13 @@
   "homepage": "https://github.com/k33g/hop#readme",
   "dependencies": {
     "casti": "git+https://git@github.com/k33g/casti.git",
-    "pico": "git+https://git@github.com/k33g/pico.git",
-    "shelljs": "^0.7.8"
+    "shelljs": "^0.7.8",
+    "body-parser": "^1.17.2",
+    "express": "^4.15.4",
+    "haikunator": "^2.0.0",
+    "node-fetch": "^1.7.2",
+    "pullet": "git+https://git@github.com/k33g/pullet.git",
+    "redis": "^2.8.0",
+    "uuid": "^3.1.0"
   }
 }
