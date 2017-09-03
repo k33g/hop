@@ -76,7 +76,10 @@ deployService.post({uri:`/api/deploy/shell`, f: (request, response) => {
  */
 
 /*  
-  curl -H "Content-Type: application/json" -H "Token: bobmorane" -X POST -d '{"organization":"wey-yu", "applicationName":"myapp", "domainName":"myapp", "applicationType":"node", "repository":"https://github.com/k33g/pico-hello-service.git"}' http://hop.cleverapps.io/api/deploy/repository
+  curl -H "Content-Type: application/json" -H "Token: bobmorane" -X POST -d '{"organization":"wey-yu", "applicationName":"myapp", "domainName":"my_app", "applicationType":"node", "repository":"https://github.com/k33g/pico-hello-service.git"}' http://hop.cleverapps.io/api/deploy/repository
+  curl -H "Content-Type: application/json" -H "Token: bobmorane" -X POST -d '{"organization":"wey-yu", "applicationName":"myapp", "domainName":"my_app", "applicationType":"node", "repository":"https://github.com/k33g/pico-hello-service.git"}' http://localhost:8080//api/deploy/repository
+
+  DEPLOY_TOKEN=bobmorane CC_SECRET=2c1ba959c6974a20be992b08e2d43077 CC_TOKEN=2c9bcb769cae447bad6c7056ae705550 node index.js
 */
 
 deployService.post({uri:`/api/deploy/repository`, f: (request, response) => {
@@ -97,13 +100,14 @@ deployService.post({uri:`/api/deploy/repository`, f: (request, response) => {
   console.log("repository", repository)
 
   checkToken(token).when({
-    Failure: err => response.sendJson({message: "😡", error: err}),
+    Failure: error => response.sendJson({message: "😡", error: error}),
     Success: () => {
+      console.log("😀 token is ok")
       /*=== deploy an application ===*/
 
       // === define the application ===
       let rawApp = Application.of({
-        type: applicationType,
+        type: applications.Types.NODE,
         localPath: `${process.cwd()}/applications`, 
         name: `${applicationName}`,
         displayName: `${applicationName}`,
@@ -111,7 +115,7 @@ deployService.post({uri:`/api/deploy/repository`, f: (request, response) => {
         organization: organization,
         region: applications.Regions.PARIS,
         scale: applications.Scales.MEDIUM, // 👈 TODO 
-        addonsNames: [""],
+        addonsNames: [],
         environmentVariables: ["PORT=8080"] // 👈 TODO      
       })
       // === end of define the application ===
@@ -125,18 +129,30 @@ deployService.post({uri:`/api/deploy/repository`, f: (request, response) => {
       rawApp.create({directoryExists:true}).when({ // directoryExists equals true because created with previous git clone command
         Failure: error => {
           console.log(`😡 Huston? We had a problem when creating application`, error)
-          response.sendJson({message: "😡", error: err})
+          response.sendJson({message: "😡", error: error})
         },
         Success: services => { // {applications, addons}
-              
+          console.log("👋 services", services)
           /*
             rawApp.addEnvironmentVariable(
               {name:`MY_VARIABLE`, value: "something"}
             )
           */
 
-          rawApp.initializeGitRepository()
-          rawApp.pushToClever()
+          rawApp.initializeGitRepository().when({
+            Failure: error => {
+              console.log(`😡 when creating initializeGitRepository`, error)
+              response.sendJson({message: "😡", error: error, when:"initializeGitRepository"})
+            },
+            Success: () => console.log("😀 initializeGitRepository")
+          })
+          rawApp.pushToClever().when({
+            Failure: error => {
+              console.log(`😡 when creating pushToClever`, error)
+              response.sendJson({message: "😡", error: error, when:"pushToClever"})
+            },
+            Success: () => console.log("😀 pushToClever")
+          })
 
           response.sendJson({application:rawApp})
         }      
