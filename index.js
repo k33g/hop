@@ -78,8 +78,6 @@ deployService.post({uri:`/api/deploy/shell`, f: (request, response) => {
 /*  
   curl -H "Content-Type: application/json" -H "Token: bobmorane" -X POST -d '{"organization":"wey-yu", "applicationName":"myapp", "domainName":"my_app", "applicationType":"node", "repository":"https://github.com/k33g/pico-hello-service.git"}' http://hop.cleverapps.io/api/deploy/repository
   curl -H "Content-Type: application/json" -H "Token: bobmorane" -X POST -d '{"organization":"wey-yu", "applicationName":"myapp", "domainName":"my_app", "applicationType":"node", "repository":"https://github.com/k33g/pico-hello-service.git"}' http://localhost:8080//api/deploy/repository
-
-  DEPLOY_TOKEN=bobmorane CC_SECRET=2c1ba959c6974a20be992b08e2d43077 CC_TOKEN=2c9bcb769cae447bad6c7056ae705550 node index.js
 */
 
 deployService.post({uri:`/api/deploy/repository`, f: (request, response) => {
@@ -107,7 +105,7 @@ deployService.post({uri:`/api/deploy/repository`, f: (request, response) => {
 
       // === define the application ===
       let rawApp = Application.of({
-        type: applications.Types.NODE,
+        type: {name:applicationType},
         localPath: `${process.cwd()}/applications`, 
         name: `${applicationName}`,
         displayName: `${applicationName}`,
